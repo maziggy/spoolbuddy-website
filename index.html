@@ -271,7 +271,7 @@
 
     .hero-image img {
       width: 100%;
-      max-width: 550px;
+      max-width: 700px;
       filter: drop-shadow(0 40px 80px rgba(0,0,0,0.6));
     }
 
@@ -281,8 +281,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 400px;
-      height: 400px;
+      width: 500px;
+      height: 500px;
       background: radial-gradient(circle, var(--green-glow) 0%, transparent 70%);
       z-index: -1;
       animation: glowPulse 4s ease-in-out infinite;
@@ -430,156 +430,56 @@
       line-height: 1.7;
     }
 
-    /* Screenshots Section */
-    .screenshots {
-      padding: 80px 0 120px;
-    }
-
-    .screenshots-wrapper {
-      position: relative;
-    }
-
-    .screenshots-track {
-      display: flex;
-      gap: 24px;
-      overflow-x: auto;
-      padding: 20px 0 40px;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-
-    .screenshots-track::-webkit-scrollbar {
-      display: none;
-    }
-
-    .screenshot-card {
-      flex: 0 0 auto;
-      width: 400px;
-      scroll-snap-align: start;
-      position: relative;
-    }
-
-    .screenshot-card img {
-      width: 100%;
-      border-radius: 16px;
-      border: 1px solid var(--border-subtle);
-      transition: all 0.4s ease;
-    }
-
-    .screenshot-card:hover img {
-      transform: scale(1.02);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    /* Highlighted feature cards */
+    .feature-card--highlight {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(76, 175, 80, 0.08) 100%);
       border-color: rgba(76, 175, 80, 0.3);
     }
 
-    .screenshot-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-top: 16px;
-      text-align: center;
+    .feature-card--highlight::before {
+      opacity: 1;
+      background: linear-gradient(90deg, var(--green-primary), var(--green-primary), var(--green-primary));
     }
 
-    /* CTA Section */
-    .cta-section {
-      padding: 80px 0 120px;
-    }
-
-    .cta-card {
-      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
-      border: 1px solid var(--border-subtle);
-      border-radius: 24px;
-      padding: 80px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at center, var(--green-subtle) 0%, transparent 50%);
-      animation: rotate 30s linear infinite;
-    }
-
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    .cta-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .cta-card h2 {
-      margin-bottom: 16px;
-    }
-
-    .cta-card p {
-      color: var(--text-secondary);
-      max-width: 480px;
-      margin: 0 auto 40px;
-    }
-
-    .email-form {
-      display: flex;
-      gap: 12px;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    .email-input {
-      flex: 1;
-      padding: 16px 20px;
-      background: var(--bg-dark);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      color: var(--text-primary);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.3s;
-    }
-
-    .email-input::placeholder {
-      color: var(--text-muted);
-    }
-
-    .email-input:focus {
-      border-color: var(--green-primary);
+    .feature-card--highlight .feature-icon {
+      background: rgba(76, 175, 80, 0.2);
     }
 
     /* Compatible Printers */
     .compatibility {
-      padding: 40px 0 80px;
-      border-top: 1px solid var(--border-subtle);
+      padding: 80px 0 100px;
     }
 
-    .compat-content {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 48px;
-      flex-wrap: wrap;
+    .compatibility .section-header {
+      margin-bottom: 60px;
     }
 
-    .compat-label {
+    .compat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .compat-group {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .compat-group-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--green-primary);
+      margin-bottom: 16px;
     }
 
-    .compat-list {
+    .compat-items {
       display: flex;
-      gap: 32px;
+      flex-direction: column;
+      gap: 8px;
     }
 
     .compat-item {
@@ -587,9 +487,8 @@
       font-size: 14px;
       color: var(--text-secondary);
       padding: 8px 16px;
-      background: var(--bg-card);
+      background: var(--bg-elevated);
       border-radius: 6px;
-      border: 1px solid var(--border-subtle);
     }
 
     /* Footer */
@@ -669,7 +568,7 @@
       }
 
       .hero-image img {
-        max-width: 400px;
+        max-width: 500px;
         margin: 0 auto;
         display: block;
       }
@@ -678,12 +577,8 @@
         grid-template-columns: 1fr;
       }
 
-      .cta-card {
-        padding: 48px 24px;
-      }
-
-      .email-form {
-        flex-direction: column;
+      .compat-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
@@ -692,24 +587,14 @@
         display: none;
       }
 
-      .screenshot-card {
-        width: 320px;
-      }
-
       .footer-content {
         flex-direction: column;
         gap: 24px;
         text-align: center;
       }
 
-      .compat-content {
-        flex-direction: column;
-        gap: 24px;
-      }
-
-      .compat-list {
-        flex-wrap: wrap;
-        justify-content: center;
+      .compat-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -730,8 +615,7 @@
       <img src="assets/spoolbuddy_logo_dark.png" alt="SpoolBuddy" class="logo">
       <ul class="nav-links">
         <li><a href="#features">Features</a></li>
-        <li><a href="#screenshots">Interface</a></li>
-        <li><a href="#notify">Get Notified</a></li>
+        <li><a href="#compatibility">Compatibility</a></li>
       </ul>
     </div>
   </nav>
@@ -744,12 +628,8 @@
           <div class="badge">Coming Soon</div>
           <h1>Smart Filament<br>Management for<br><span class="highlight">Bambu Lab</span></h1>
           <p class="hero-description">
-            NFC-powered spool identification, precision weight tracking, and seamless inventory management. Take control of your filament workflow.
+            NFC-powered spool identification, precision weight tracking, and seamless inventory management. Works with any NFC-tagged spool and auto-configures your AMS slots.
           </p>
-          <div class="hero-cta">
-            <a href="#notify" class="btn btn-primary">Get Early Access</a>
-            <a href="#features" class="btn btn-secondary">Learn More</a>
-          </div>
         </div>
         <div class="hero-image">
           <img src="assets/SpoolBuddy _preview.png" alt="SpoolBuddy Device">
@@ -785,7 +665,7 @@
       </div>
 
       <div class="features-grid">
-        <div class="feature-card">
+        <div class="feature-card feature-card--highlight">
           <div class="feature-icon">
             <svg viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
@@ -793,8 +673,18 @@
               <circle cx="12" cy="12" r="3"/>
             </svg>
           </div>
-          <h3>NFC Spool Tagging</h3>
-          <p>Tap any tagged spool to instantly identify it. Read Bambu Lab NFC tags or create your own. No manual entry required.</p>
+          <h3>Universal NFC Support</h3>
+          <p>Not limited to Bambu Lab tags. Read any RFID/NFC spool tag including third-party brands, or write your own custom tags. Full compatibility with the entire NFC ecosystem.</p>
+        </div>
+
+        <div class="feature-card feature-card--highlight">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <h3>Auto-Configure AMS</h3>
+          <p>Scan a spool and SpoolBuddy automatically updates the matching AMS slot with the correct filament type, color, and settings. No manual printer configuration needed.</p>
         </div>
 
         <div class="feature-card">
@@ -859,63 +749,42 @@
     </div>
   </section>
 
-  <!-- Screenshots Section -->
-  <section class="screenshots" id="screenshots">
+  <!-- Compatibility -->
+  <section class="compatibility" id="compatibility">
     <div class="container">
       <div class="section-header">
-        <div class="section-label">Interface</div>
-        <h2>Designed for Your Workflow</h2>
-        <p class="section-description">
-          A clean, intuitive interface that puts the information you need front and center.
-        </p>
+        <div class="section-label">Compatibility</div>
+        <h2>Works With Your Bambu Lab Printer</h2>
       </div>
-
-      <div class="screenshots-wrapper">
-        <div class="screenshots-track">
-          <div class="screenshot-card">
-            <img src="assets/mockup_catalog.png" alt="Spool Catalog">
-            <div class="screenshot-label">Spool Catalog</div>
-          </div>
-          <div class="screenshot-card">
-            <img src="assets/mockup_scan-result.png" alt="NFC Scan Result">
-            <div class="screenshot-label">NFC Scan Result</div>
-          </div>
-          <div class="screenshot-card">
-            <img src="assets/mockup_scale-calibration.png" alt="Scale Calibration">
-            <div class="screenshot-label">Scale Calibration</div>
+      <div class="compat-grid">
+        <div class="compat-group">
+          <div class="compat-group-label">X1 Series</div>
+          <div class="compat-items">
+            <span class="compat-item">X1</span>
+            <span class="compat-item">X1C</span>
+            <span class="compat-item">X1E</span>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="cta-section" id="notify">
-    <div class="container">
-      <div class="cta-card">
-        <div class="cta-content">
-          <div class="section-label">Get Notified</div>
-          <h2>Be First to Know</h2>
-          <p>SpoolBuddy is in active development. Sign up to get notified when we launch and receive early access pricing.</p>
-          <form class="email-form" onsubmit="event.preventDefault(); alert('Thanks! We\'ll notify you when SpoolBuddy launches.');">
-            <input type="email" class="email-input" placeholder="Enter your email" required>
-            <button type="submit" class="btn btn-primary">Notify Me</button>
-          </form>
+        <div class="compat-group">
+          <div class="compat-group-label">P1 Series</div>
+          <div class="compat-items">
+            <span class="compat-item">P1P</span>
+            <span class="compat-item">P1S</span>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Compatibility -->
-  <section class="compatibility">
-    <div class="container">
-      <div class="compat-content">
-        <div class="compat-label">Compatible With</div>
-        <div class="compat-list">
-          <span class="compat-item">X1 Series</span>
-          <span class="compat-item">P1 Series</span>
-          <span class="compat-item">A1 Series</span>
-          <span class="compat-item">AMS / AMS Lite</span>
+        <div class="compat-group">
+          <div class="compat-group-label">A1 Series</div>
+          <div class="compat-items">
+            <span class="compat-item">A1</span>
+            <span class="compat-item">A1 Mini</span>
+          </div>
+        </div>
+        <div class="compat-group">
+          <div class="compat-group-label">AMS Units</div>
+          <div class="compat-items">
+            <span class="compat-item">AMS</span>
+            <span class="compat-item">AMS Lite</span>
+          </div>
         </div>
       </div>
     </div>
@@ -928,9 +797,8 @@
         <img src="assets/spoolbuddy_logo_dark.png" alt="SpoolBuddy" class="footer-logo">
         <ul class="footer-links">
           <li><a href="https://github.com/pgregg88/SpoolStation" target="_blank">GitHub</a></li>
-          <li><a href="mailto:hello@spoolbuddy.com">Contact</a></li>
         </ul>
-        <span class="copyright">&copy; 2025 SpoolBuddy</span>
+        <span class="copyright">&copy; 2026 SpoolBuddy</span>
       </div>
     </div>
   </footer>
@@ -961,7 +829,7 @@
       });
     }, observerOptions);
 
-    document.querySelectorAll('.feature-card, .screenshot-card').forEach(el => {
+    document.querySelectorAll('.feature-card, .compat-group').forEach(el => {
       el.style.opacity = '0';
       el.style.transform = 'translateY(20px)';
       el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
