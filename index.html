@@ -3,645 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SpoolBuddy - Smart Filament Management for Bambu Lab Printers</title>
-  <meta name="description" content="NFC-powered spool identification, weight tracking, and inventory management for your 3D printing workflow.">
+  <meta name="description" content="SpoolBuddy - Smart filament management for Bambu Lab 3D printers. NFC-powered spool identification, precision weight tracking, and automatic AMS configuration.">
+  <meta name="keywords" content="Bambu Lab, 3D printing, filament management, NFC, AMS, spool tracking, weight scale">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://spoolbuddy.cool/">
+  <meta property="og:title" content="SpoolBuddy - Smart Filament Management for Bambu Lab">
+  <meta property="og:description" content="NFC-powered spool identification, precision weight tracking, and automatic AMS configuration for your 3D printing workflow.">
+  <meta property="og:image" content="https://spoolbuddy.cool/assets/screenshots/web/dashboard.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SpoolBuddy">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://spoolbuddy.cool/">
+  <meta name="twitter:title" content="SpoolBuddy - Smart Filament Management for Bambu Lab">
+  <meta name="twitter:description" content="NFC-powered spool identification, precision weight tracking, and automatic AMS configuration for your 3D printing workflow.">
+  <meta name="twitter:image" content="https://spoolbuddy.cool/assets/screenshots/web/dashboard.png">
+
+  <!-- Structured Data for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SpoolBuddy",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Linux, Docker",
+    "description": "Smart filament management system for Bambu Lab 3D printers with NFC-powered spool identification, precision weight tracking, and automatic AMS configuration.",
+    "url": "https://spoolbuddy.cool",
+    "image": "https://spoolbuddy.cool/assets/img/spoolbuddy_logo_dark.png",
+    "screenshot": "https://spoolbuddy.cool/assets/screenshots/web/dashboard.png",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+
+  <title>SpoolBuddy - Smart Filament Management for Bambu Lab</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/spoolbuddy_logo_dark.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/img/spoolbuddy_logo_dark.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --green-primary: #4CAF50;
-      --green-glow: rgba(76, 175, 80, 0.4);
-      --green-subtle: rgba(76, 175, 80, 0.1);
-      --bg-dark: #0d0d0d;
-      --bg-card: #1a1a1a;
-      --bg-elevated: #242424;
-      --text-primary: #ffffff;
-      --text-secondary: #a0a0a0;
-      --text-muted: #666666;
-      --border-subtle: rgba(255,255,255,0.08);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--bg-dark);
-      color: var(--text-primary);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* Filament strand decorative lines */
-    .filament-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.03;
-    }
-
-    .filament-strand {
-      position: absolute;
-      width: 2px;
-      height: 200%;
-      background: linear-gradient(180deg, transparent, var(--green-primary), transparent);
-      transform-origin: top center;
-    }
-
-    .strand-1 { left: 10%; animation: drift 20s ease-in-out infinite; }
-    .strand-2 { left: 25%; animation: drift 25s ease-in-out infinite reverse; }
-    .strand-3 { left: 60%; animation: drift 22s ease-in-out infinite; }
-    .strand-4 { left: 85%; animation: drift 28s ease-in-out infinite reverse; }
-
-    @keyframes drift {
-      0%, 100% { transform: translateY(-20%) rotate(-2deg); }
-      50% { transform: translateY(-30%) rotate(2deg); }
-    }
-
-    /* Grid pattern overlay */
-    .grid-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image:
-        linear-gradient(rgba(76, 175, 80, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(76, 175, 80, 0.02) 1px, transparent 1px);
-      background-size: 60px 60px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 24px;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Navigation */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      padding: 20px 0;
-      background: linear-gradient(180deg, var(--bg-dark) 0%, transparent 100%);
-      transition: background 0.3s;
-    }
-
-    nav.scrolled {
-      background: rgba(13, 13, 13, 0.95);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    nav .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      height: 40px;
-      opacity: 0;
-      animation: fadeIn 0.6s ease forwards;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 32px;
-      list-style: none;
-    }
-
-    .nav-links a {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      text-decoration: none;
-      letter-spacing: 0.5px;
-      transition: color 0.2s;
-      opacity: 0;
-      animation: fadeIn 0.6s ease forwards;
-    }
-
-    .nav-links li:nth-child(1) a { animation-delay: 0.1s; }
-    .nav-links li:nth-child(2) a { animation-delay: 0.15s; }
-    .nav-links li:nth-child(3) a { animation-delay: 0.2s; }
-
-    .nav-links a:hover {
-      color: var(--green-primary);
-    }
-
-    .github-link {
-      display: flex;
-      align-items: center;
-    }
-
-    .github-link svg {
-      transition: transform 0.2s, color 0.2s;
-    }
-
-    .github-link:hover svg {
-      transform: scale(1.1);
-    }
-
-    /* Hero Section */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding: 120px 0 80px;
-      position: relative;
-    }
-
-    .hero-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-    }
-
-    .hero-text {
-      opacity: 0;
-      animation: slideUp 0.8s ease forwards;
-      animation-delay: 0.3s;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--green-subtle);
-      border: 1px solid rgba(76, 175, 80, 0.3);
-      border-radius: 100px;
-      padding: 8px 16px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      color: var(--green-primary);
-      margin-bottom: 24px;
-      letter-spacing: 0.5px;
-    }
-
-    .badge::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background: var(--green-primary);
-      border-radius: 50%;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    h1 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: clamp(40px, 5vw, 56px);
-      font-weight: 700;
-      line-height: 1.1;
-      margin-bottom: 24px;
-      letter-spacing: -1px;
-    }
-
-    h1 .highlight {
-      color: var(--green-primary);
-      position: relative;
-    }
-
-    .hero-description {
-      font-size: 18px;
-      color: var(--text-secondary);
-      max-width: 480px;
-      margin-bottom: 40px;
-      font-weight: 300;
-    }
-
-    .hero-cta {
-      display: flex;
-      gap: 16px;
-    }
-
-    .btn {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 16px 32px;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      border: none;
-      letter-spacing: 0.5px;
-    }
-
-    .btn-primary {
-      background: var(--green-primary);
-      color: var(--bg-dark);
-      box-shadow: 0 0 30px var(--green-glow);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 50px var(--green-glow);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      color: var(--text-primary);
-      border: 1px solid var(--border-subtle);
-    }
-
-    .btn-secondary:hover {
-      border-color: var(--text-secondary);
-      background: rgba(255,255,255,0.02);
-    }
-
-    .hero-image {
-      position: relative;
-      opacity: 0;
-      animation: slideIn 1s ease forwards;
-      animation-delay: 0.5s;
-    }
-
-    .hero-image img {
-      width: 120%;
-      max-width: 900px;
-      filter: drop-shadow(0 40px 80px rgba(0,0,0,0.6));
-    }
-
-    .hero-image::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 650px;
-      height: 650px;
-      background: radial-gradient(circle, var(--green-glow) 0%, transparent 70%);
-      z-index: -1;
-      animation: glowPulse 4s ease-in-out infinite;
-    }
-
-    @keyframes glowPulse {
-      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-      50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
-    }
-
-    /* Stats Bar */
-    .stats-bar {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--border-subtle);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-top: 80px;
-      opacity: 0;
-      animation: fadeIn 0.8s ease forwards;
-      animation-delay: 0.8s;
-    }
-
-    .stat {
-      background: var(--bg-card);
-      padding: 32px;
-      text-align: center;
-    }
-
-    .stat-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--green-primary);
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 13px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* Features Section */
-    .features {
-      padding: 120px 0;
-    }
-
-    .section-header {
-      text-align: center;
-      max-width: 640px;
-      margin: 0 auto 80px;
-    }
-
-    .section-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      color: var(--green-primary);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 16px;
-    }
-
-    h2 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: clamp(32px, 4vw, 42px);
-      font-weight: 600;
-      margin-bottom: 16px;
-      letter-spacing: -0.5px;
-    }
-
-    .section-description {
-      color: var(--text-secondary);
-      font-size: 16px;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-    }
-
-    .feature-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 32px;
-      transition: all 0.4s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--green-primary), transparent);
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(76, 175, 80, 0.3);
-    }
-
-    .feature-card:hover::before {
-      opacity: 1;
-    }
-
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--green-subtle);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    .feature-icon svg {
-      width: 24px;
-      height: 24px;
-      stroke: var(--green-primary);
-      fill: none;
-      stroke-width: 2;
-    }
-
-    .feature-card h3 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-
-    .feature-card p {
-      color: var(--text-secondary);
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    /* Highlighted feature cards */
-    .feature-card--highlight {
-      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(76, 175, 80, 0.08) 100%);
-      border-color: rgba(76, 175, 80, 0.3);
-    }
-
-    .feature-card--highlight::before {
-      opacity: 1;
-      background: linear-gradient(90deg, var(--green-primary), var(--green-primary), var(--green-primary));
-    }
-
-    .feature-card--highlight .feature-icon {
-      background: rgba(76, 175, 80, 0.2);
-    }
-
-    /* Compatible Printers */
-    .compatibility {
-      padding: 80px 0 100px;
-    }
-
-    .compatibility .section-header {
-      margin-bottom: 60px;
-    }
-
-    .compat-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 24px;
-    }
-
-    .compat-group {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-    }
-
-    .compat-group-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--green-primary);
-      margin-bottom: 16px;
-    }
-
-    .compat-items {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .compat-item {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      color: var(--text-secondary);
-      padding: 8px 16px;
-      background: var(--bg-elevated);
-      border-radius: 6px;
-    }
-
-    /* Footer */
-    footer {
-      padding: 48px 0;
-      border-top: 1px solid var(--border-subtle);
-    }
-
-    .footer-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-logo {
-      height: 32px;
-      opacity: 0.7;
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 32px;
-      list-style: none;
-    }
-
-    .footer-links a {
-      font-size: 14px;
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover {
-      color: var(--text-primary);
-    }
-
-    .copyright {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(40px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* Responsive */
-    @media (max-width: 968px) {
-      .hero-content {
-        grid-template-columns: 1fr;
-        gap: 60px;
-        text-align: center;
-      }
-
-      .hero-description {
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .hero-cta {
-        justify-content: center;
-      }
-
-      .hero-image {
-        order: -1;
-      }
-
-      .hero-image img {
-        width: 100%;
-        max-width: 600px;
-        margin: 0 auto;
-        display: block;
-      }
-
-      .stats-bar {
-        grid-template-columns: 1fr;
-      }
-
-      .compat-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    @media (max-width: 640px) {
-      .nav-links {
-        display: none;
-      }
-
-      .footer-content {
-        flex-direction: column;
-        gap: 24px;
-        text-align: center;
-      }
-
-      .compat-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 400px) {
-      .compat-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
-  <!-- Background Effects -->
-  <div class="filament-bg">
-    <div class="filament-strand strand-1"></div>
-    <div class="filament-strand strand-2"></div>
-    <div class="filament-strand strand-3"></div>
-    <div class="filament-strand strand-4"></div>
-  </div>
-  <div class="grid-overlay"></div>
+  <!-- Scroll Progress -->
+  <div class="scroll-progress"></div>
 
   <!-- Navigation -->
-  <nav id="nav">
-    <div class="container">
-      <img src="assets/spoolbuddy_logo_dark.png" alt="SpoolBuddy" class="logo">
-      <ul class="nav-links">
-        <li><a href="#features">Features</a></li>
-        <li><a href="#compatibility">Compatibility</a></li>
-        <li><a href="https://github.com/maziggy/bambuddy" target="_blank" class="github-link" aria-label="GitHub">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <img src="assets/img/spoolbuddy_logo_dark.png" alt="SpoolBuddy" class="logo-img">
+      </a>
+
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="nav-links">
+        <a href="index.html" class="nav-link active">Home</a>
+        <a href="features.html" class="nav-link">Features</a>
+        <a href="http://wiki.spoolbuddy.cool" target="_blank" rel="noopener" class="nav-link">Docs</a>
+        <a href="https://github.com/maziggy/SpoolStation" class="nav-cta" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
           </svg>
-        </a></li>
-      </ul>
+          GitHub
+        </a>
+      </div>
     </div>
   </nav>
 
@@ -649,72 +87,96 @@
   <section class="hero">
     <div class="container">
       <div class="hero-content">
-        <div class="hero-text">
-          <div class="badge">Coming Soon</div>
-          <h1>Smart Filament<br>Management for<br><span class="highlight">Bambu Lab</span></h1>
-          <p class="hero-description">
-            NFC-powered spool identification, precision weight tracking, and seamless inventory management. Works with any NFC-tagged spool and auto-configures your AMS slots.
-          </p>
+        <span class="hero-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          Hardware + Software Solution
+        </span>
+        <h1 class="hero-title">
+          Smart Filament<br>Management for<br><span class="text-gradient">Bambu Lab</span>
+        </h1>
+        <p class="hero-description">
+          NFC-powered spool identification, precision weight tracking, and seamless inventory management. Scan your spool and auto-configure your AMS slots instantly.
+        </p>
+        <div class="hero-buttons">
+          <a href="http://wiki.spoolbuddy.cool" class="btn btn-primary" target="_blank" rel="noopener">
+            Get Started
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="https://github.com/maziggy/SpoolStation" class="btn btn-secondary" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            View on GitHub
+          </a>
         </div>
-        <div class="hero-image">
-          <img src="assets/SpoolBuddy _preview.png" alt="SpoolBuddy Device">
-        </div>
-      </div>
 
-      <div class="stats-bar">
-        <div class="stat">
-          <div class="stat-value">NFC</div>
-          <div class="stat-label">Instant Identification</div>
+        <!-- Device Preview Image -->
+        <div class="hero-image reveal">
+          <img src="assets/img/SpoolBuddy _preview.png" alt="SpoolBuddy Device" loading="lazy">
         </div>
-        <div class="stat">
-          <div class="stat-value">AMS</div>
-          <div class="stat-label">Auto-Configuration</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value">OTA</div>
-          <div class="stat-label">Firmware Updates</div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar reveal">
+          <div class="stat">
+            <div class="stat-value">NFC</div>
+            <div class="stat-label">Instant Identification</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">AMS</div>
+            <div class="stat-label">Auto-Configuration</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">OTA</div>
+            <div class="stat-label">Firmware Updates</div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Features Section -->
-  <section class="features" id="features">
+  <section class="section" id="features">
     <div class="container">
-      <div class="section-header">
-        <div class="section-label">Features</div>
-        <h2>Everything You Need to Manage Your Filament</h2>
-        <p class="section-description">
-          A complete hardware and software solution designed specifically for Bambu Lab ecosystems.
-        </p>
+      <div class="section-header reveal">
+        <h2>Everything You Need to <span class="text-gradient">Manage Your Filament</span></h2>
+        <p>A complete hardware and software solution designed specifically for Bambu Lab ecosystems.</p>
       </div>
 
       <div class="features-grid">
-        <div class="feature-card feature-card--highlight">
+        <!-- Highlight Feature 1 -->
+        <div class="feature-card feature-card--highlight reveal stagger-1">
           <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-              <path d="M12 6v6l4 2"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
               <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
             </svg>
           </div>
           <h3>Universal NFC Support</h3>
           <p>Not limited to Bambu Lab tags. Read any RFID/NFC spool tag including third-party brands, or write your own custom tags. Full compatibility with the entire NFC ecosystem.</p>
         </div>
 
-        <div class="feature-card feature-card--highlight">
+        <!-- Highlight Feature 2 -->
+        <div class="feature-card feature-card--highlight reveal stagger-2">
           <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
             </svg>
           </div>
           <h3>Auto-Configure AMS</h3>
-          <p>Scan a spool and SpoolBuddy automatically updates the matching AMS slot with the correct filament type, color, and settings. No manual printer configuration needed.</p>
+          <p>Scan a spool and SpoolBuddy automatically updates the matching AMS slot with the correct filament type, color, and K-factor settings. No manual printer configuration needed.</p>
         </div>
 
-        <div class="feature-card">
+        <!-- Feature 3 -->
+        <div class="feature-card reveal stagger-3">
           <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="10" width="18" height="11" rx="2"/>
               <path d="M7 10V7a5 5 0 0 1 10 0v3"/>
               <line x1="12" y1="14" x2="12" y2="17"/>
@@ -724,21 +186,23 @@
           <p>Built-in load cell tracks remaining filament down to 0.1 gram accuracy. Always know exactly how much material you have left.</p>
         </div>
 
-        <div class="feature-card">
+        <!-- Feature 4 -->
+        <div class="feature-card reveal stagger-4">
           <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="2" y="3" width="20" height="14" rx="2"/>
               <line x1="8" y1="21" x2="16" y2="21"/>
               <line x1="12" y1="17" x2="12" y2="21"/>
             </svg>
           </div>
-          <h3>Touchscreen Display</h3>
-          <p>7-inch IPS touchscreen shows AMS status, spool details, and inventory at a glance. Dark theme designed for workshop use.</p>
+          <h3>7" Touchscreen Display</h3>
+          <p>IPS touchscreen shows AMS status, spool details, and inventory at a glance. Configure slots directly from the display without needing the web UI.</p>
         </div>
 
-        <div class="feature-card">
+        <!-- Feature 5 -->
+        <div class="feature-card reveal stagger-5">
           <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
               <line x1="12" y1="6" x2="16" y2="6"/>
@@ -746,124 +210,244 @@
             </svg>
           </div>
           <h3>Spool Catalog</h3>
-          <p>Complete inventory management with filtering by material, color, and brand. Track usage history and remaining weights.</p>
+          <p>Complete inventory management with filtering by material, color, and brand. Track usage history and remaining weights across your entire collection.</p>
         </div>
 
-        <div class="feature-card">
+        <!-- Feature 6 -->
+        <div class="feature-card reveal stagger-6">
           <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/>
               <path d="M12 6v6l4 2"/>
             </svg>
           </div>
-          <h3>AMS Visualization</h3>
-          <p>Real-time view of all your AMS units. See what's loaded, humidity levels, and remaining filament across all slots.</p>
+          <h3>Real-Time AMS View</h3>
+          <p>See what's loaded in all your AMS units. Monitor humidity levels, remaining filament, and active slots across all connected printers.</p>
         </div>
 
-        <div class="feature-card">
+        <!-- Feature 7 -->
+        <div class="feature-card reveal stagger-7">
           <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12a9 9 0 1 1-9-9"/>
               <path d="M21 3v9h-9"/>
             </svg>
           </div>
           <h3>OTA Updates</h3>
-          <p>Automatic firmware updates keep your device current. New features delivered seamlessly over WiFi.</p>
+          <p>Automatic firmware updates keep your device current. New features delivered seamlessly over WiFi to both the ESP32 display and the backend server.</p>
+        </div>
+      </div>
+
+      <div class="text-center mt-xl reveal">
+        <a href="features.html" class="btn btn-secondary">
+          Explore All Features
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Device Showcase -->
+  <section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>Two Interfaces, <span class="text-gradient">One System</span></h2>
+        <p>Control SpoolBuddy from the touchscreen display or the web interface - they work together seamlessly.</p>
+      </div>
+
+      <div class="device-showcase">
+        <div class="device-card reveal stagger-1">
+          <img src="assets/screenshots/display/main.png" alt="SpoolBuddy Touchscreen Display" loading="lazy">
+          <h4>Touchscreen Display</h4>
+          <p>7" IPS display with ESP32 controller. View AMS status, scan spools, and configure slots directly.</p>
+        </div>
+        <div class="device-card reveal stagger-2">
+          <img src="assets/screenshots/web/dashboard.png" alt="SpoolBuddy Web Interface" loading="lazy">
+          <h4>Web Interface</h4>
+          <p>Full-featured web UI for complete inventory management, printer control, and system settings.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Compatibility -->
-  <section class="compatibility" id="compatibility">
+  <!-- Supported Printers -->
+  <section class="section">
     <div class="container">
-      <div class="section-header">
-        <div class="section-label">Compatibility</div>
-        <h2>Works With Your Bambu Lab Printer</h2>
+      <div class="section-header reveal">
+        <h2>Supported <span class="text-gradient">Printers</span></h2>
+        <p>Works with all Bambu Lab printers via Developer Mode.</p>
       </div>
-      <div class="compat-grid">
-        <div class="compat-group">
-          <div class="compat-group-label">X1 Series</div>
-          <div class="compat-items">
-            <span class="compat-item">X1</span>
-            <span class="compat-item">X1C</span>
-            <span class="compat-item">X1E</span>
-          </div>
+
+      <div class="printers-grid">
+        <div class="printer-card reveal stagger-1">
+          <h4>X1 Series</h4>
+          <p class="models">X1, X1C, X1E</p>
+          <span class="badge">Tested</span>
         </div>
-        <div class="compat-group">
-          <div class="compat-group-label">P1 Series</div>
-          <div class="compat-items">
-            <span class="compat-item">P1P</span>
-            <span class="compat-item">P1S</span>
-          </div>
+
+        <div class="printer-card reveal stagger-2">
+          <h4>P1 Series</h4>
+          <p class="models">P1P, P1S</p>
+          <span class="badge">Compatible</span>
         </div>
-        <div class="compat-group">
-          <div class="compat-group-label">A1 Series</div>
-          <div class="compat-items">
-            <span class="compat-item">A1</span>
-            <span class="compat-item">A1 Mini</span>
-          </div>
+
+        <div class="printer-card reveal stagger-3">
+          <h4>P2 Series</h4>
+          <p class="models">P2S</p>
+          <span class="badge">Compatible</span>
         </div>
-        <div class="compat-group">
-          <div class="compat-group-label">H2 Series</div>
-          <div class="compat-items">
-            <span class="compat-item">H2S</span>
-            <span class="compat-item">H2D</span>
-          </div>
+
+        <div class="printer-card reveal stagger-4">
+          <h4>A1 Series</h4>
+          <p class="models">A1, A1 Mini</p>
+          <span class="badge">Compatible</span>
         </div>
-        <div class="compat-group">
-          <div class="compat-group-label">AMS Units</div>
-          <div class="compat-items">
-            <span class="compat-item">AMS</span>
-            <span class="compat-item">AMS Lite</span>
-          </div>
+
+        <div class="printer-card reveal stagger-5">
+          <h4>H2 Series</h4>
+          <p class="models">H2D</p>
+          <span class="badge">Tested</span>
+        </div>
+
+        <div class="printer-card reveal stagger-6">
+          <h4>AMS Units</h4>
+          <p class="models">AMS, AMS Lite, AMS HT</p>
+          <span class="badge">All Types</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>Built with Modern <span class="text-gradient">Technologies</span></h2>
+        <p>A robust stack designed for reliability and performance.</p>
+      </div>
+
+      <div class="tech-grid reveal">
+        <div class="tech-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05z"/>
+          </svg>
+          Python
+        </div>
+        <div class="tech-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 .5C5.9.5.5 5.9.5 12s5.4 11.5 11.5 11.5S23.5 18.1 23.5 12 18.1.5 12 .5zm0 2c5.3 0 9.5 4.2 9.5 9.5s-4.2 9.5-9.5 9.5S2.5 17.3 2.5 12 6.7 2.5 12 2.5z"/>
+          </svg>
+          FastAPI
+        </div>
+        <div class="tech-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 9.861a2.14 2.14 0 1 0 0 4.28 2.14 2.14 0 1 0 0-4.28zm0-1.5a3.64 3.64 0 1 1 0 7.28 3.64 3.64 0 0 1 0-7.28zm7.747 3.5h-.002C19.745 6.44 16.3 2 12 2 7.7 2 4.255 6.44 4.255 11.861H4.253c-.002 4.48 2.293 8.426 5.747 10.44V24h4v-1.699c3.454-2.014 5.749-5.96 5.747-10.44z"/>
+          </svg>
+          Preact
+        </div>
+        <div class="tech-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z"/>
+          </svg>
+          TypeScript
+        </div>
+        <div class="tech-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0zm-1.93 17.628l-4.864-2.808V9.18l4.864 2.808v5.64zm.678-6.62L5.936 8.2l4.812-2.808L15.56 8.2l-4.812 2.808zm6.114 3.812l-4.864 2.808v-5.64l4.864-2.808v5.64z"/>
+          </svg>
+          LVGL
+        </div>
+        <div class="tech-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0z"/>
+          </svg>
+          ESP-IDF
+        </div>
+        <div class="tech-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M13.74 4.23c-.84-1-1.57-2-1.71-2.22H12c-.14.21-.87 1.22-1.71 2.22-7.2 9.19 1.14 15.39 1.14 15.39l.07.05c.06.95.22 2.33.22 2.33h.62s.15-1.37.21-2.33l.07-.06s8.32-6.19 1.12-15.38zM12 19.48a3.48 3.48 0 01-.48-.48L12 9l.45 10a3.48 3.48 0 01-.45.48z"/>
+          </svg>
+          MQTT
+        </div>
+        <div class="tech-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+          </svg>
+          SQLite
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>Ready to Get Started?</h2>
+        <p>Check out the documentation to build your own SpoolBuddy station.</p>
+        <div class="hero-buttons mt-xl">
+          <a href="http://wiki.spoolbuddy.cool" target="_blank" rel="noopener" class="btn btn-primary">
+            View Documentation
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer>
+  <footer class="footer">
     <div class="container">
-      <div class="footer-content">
-        <img src="assets/spoolbuddy_logo_dark.png" alt="SpoolBuddy" class="footer-logo">
-        <span class="copyright">&copy; 2026 SpoolBuddy</span>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo">
+            <img src="assets/img/spoolbuddy_logo_dark.png" alt="SpoolBuddy" class="logo-img">
+          </a>
+          <p>Smart filament management for Bambu Lab 3D printers with NFC identification and weight tracking.</p>
+        </div>
+
+        <div class="footer-column">
+          <h5>Product</h5>
+          <ul>
+            <li><a href="features.html">Features</a></li>
+            <li><a href="http://wiki.spoolbuddy.cool" target="_blank" rel="noopener">Documentation</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h5>Resources</h5>
+          <ul>
+            <li><a href="https://github.com/maziggy/SpoolStation" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/maziggy/SpoolStation/issues" target="_blank" rel="noopener">Issues</a></li>
+            <li><a href="https://github.com/maziggy/SpoolStation/releases" target="_blank" rel="noopener">Releases</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h5>Community</h5>
+          <ul>
+            <li><a href="https://github.com/maziggy/SpoolStation/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>Released under the MIT License. Made with care for the 3D printing community.</p>
+        <div class="footer-social">
+          <a href="https://github.com/maziggy/SpoolStation" target="_blank" rel="noopener" aria-label="GitHub">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
   </footer>
 
-  <script>
-    // Navbar scroll effect
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 50) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
-      }
-    });
-
-    // Smooth reveal on scroll
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-        }
-      });
-    }, observerOptions);
-
-    document.querySelectorAll('.feature-card, .compat-group').forEach(el => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(20px)';
-      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-      observer.observe(el);
-    });
-  </script>
+  <script src="js/main.js"></script>
 </body>
 </html>
