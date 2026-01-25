@@ -215,7 +215,7 @@ body:has(.coming-soon-banner) .navbar {
 }
 
 body:has(.coming-soon-banner) .hero {
-  padding-top: calc(var(--spacing-3xl) + 48px);
+  padding-top: calc(80px + 48px + var(--spacing-3xl));
 }
 
 @media (max-width: 768px) {
@@ -236,7 +236,7 @@ body:has(.coming-soon-banner) .hero {
   }
 
   body:has(.coming-soon-banner) .hero {
-    padding-top: calc(var(--spacing-3xl) + 44px);
+    padding-top: calc(60px + 44px + var(--spacing-2xl));
   }
 }
 
@@ -342,6 +342,14 @@ body:has(.coming-soon-banner) .hero {
 .nav-cta svg {
   width: 18px;
   height: 18px;
+}
+
+.nav-discord {
+  background: #5865F2;
+}
+
+.nav-discord:hover {
+  box-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
 }
 
 /* Mobile Menu */
