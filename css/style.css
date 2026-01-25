@@ -166,6 +166,80 @@ p {
   padding: 0 var(--container-padding);
 }
 
+/* Coming Soon Banner */
+.coming-soon-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1002;
+  background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-light) 50%, var(--accent-cyan) 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 5s ease infinite;
+  padding: 12px 20px;
+  text-align: center;
+}
+
+.coming-soon-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.coming-soon-banner svg {
+  color: var(--bg-primary);
+  flex-shrink: 0;
+}
+
+.coming-soon-text {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--bg-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.coming-soon-subtitle {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(10, 15, 10, 0.8);
+}
+
+/* Adjust navbar position when banner is present */
+body:has(.coming-soon-banner) .navbar {
+  top: 48px;
+}
+
+body:has(.coming-soon-banner) .hero {
+  padding-top: calc(var(--spacing-3xl) + 48px);
+}
+
+@media (max-width: 768px) {
+  .coming-soon-banner {
+    padding: 10px 16px;
+  }
+
+  .coming-soon-text {
+    font-size: 1rem;
+  }
+
+  .coming-soon-subtitle {
+    display: none;
+  }
+
+  body:has(.coming-soon-banner) .navbar {
+    top: 44px;
+  }
+
+  body:has(.coming-soon-banner) .hero {
+    padding-top: calc(var(--spacing-3xl) + 44px);
+  }
+}
+
 /* Navigation */
 .navbar {
   position: fixed;
